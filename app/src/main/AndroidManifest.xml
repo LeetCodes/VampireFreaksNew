@@ -36,8 +36,10 @@
             </intent-filter>
         </activity>
         <activity android:name="web"></activity>
-           <receiver
-            android:name="com.google.android.gcm.GCMBroadcastReceiver"
+        <!-- [START gcm_receiver] -->
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -45,7 +47,30 @@
                 <category android:name="com.vampirefreaks.wrapper" />
             </intent-filter>
         </receiver>
-        <service android:name=".GCMIntentService" />
+        <!-- [END gcm_receiver] -->
+
+        <!-- [START gcm_listener] -->
+        <service
+            android:name=".GCMIntentService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <!-- [END gcm_listener] -->
+        <!-- [START instanceId_listener] -->
+        <service
+            android:name="MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <!-- [END instanceId_listener] -->
+        <service
+            android:name=".GCMRegistrationIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

@@ -1,9 +1,27 @@
 package com.vampirefreaks.wrapper;
 
-import static com.vampirefreaks.wrapper.CommonUtilities.SENDER_ID;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.StrictMode;
+import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewParent;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -13,24 +31,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.google.android.gcm.GCMRegistrar;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.telephony.TelephonyManager;
-import android.text.InputFilter;
-import android.text.Spanned;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewParent;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 
 public class MainActivity extends Activity 
 {
@@ -39,12 +43,56 @@ public class MainActivity extends Activity
 	EditText password;
 	Button login;
 	String email1,password1;
+	private boolean isReceiverRegistered;
+	private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+	private static final String REGISTRATION_COMPLETE = "registrationComplete";
+
+	//Creating a broadcast receiver for gcm registration
+	private BroadcastReceiver mRegistrationBroadcastReceiver;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		//Initializing our broadcast receiver
+		mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+
+			//When the broadcast received
+			//We are sending the broadcast from GCMRegistrationIntentService
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				//If the broadcast has received with success
+				//that means device is registered successfully
+				if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_SUCCESS)){
+					//Getting the registration token from the intent
+					String token = intent.getStringExtra("token");
+					//Displaying the token as toast
+					System.out.println("Registration token:" + token);
+
+					Log.v(TAG, "Setting Globals.regId to: " + token);
+					Globals.regId  = token;
+
+					//if the intent is not with success then displaying error messages
+				} else if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)){
+					System.out.println("GCM registration error!");
+				} else {
+					System.out.println("Error occurred");
+				}
+			}
+		};
+
+
+		// Registering BroadcastReceiver
+		registerReceiver();
+
+		if (checkPlayServices()) {
+			// Start IntentService to register this application with GCM.
+			Intent intent = new Intent(this, GCMRegistrationIntentService.class);
+			startService(intent);
+		}
 		
 		View titleView = getWindow().findViewById(android.R.id.title);
 	    if (titleView != null) {
@@ -187,32 +235,9 @@ public class MainActivity extends Activity
 		        }
 			}
 		});
-		
-		checkNotNull(SENDER_ID, "SENDER_ID");
-		GCMRegistrar.checkDevice(this);
-		GCMRegistrar.checkManifest(this);
-		String regId = GCMRegistrar.getRegistrationId(this);
-		if (regId.equals(""))
-		{
-			Log.v(TAG, "Registering GCM");
-			GCMRegistrar.register(this, SENDER_ID);
-			regId = GCMRegistrar.getRegistrationId(this);
-		}
-		else
-		{
-			Log.v(TAG, "GCM Already registered");
-		}
-		Log.v(TAG, "Setting Globals.regId to: " + regId);
-		Globals.regId  = regId;
+
 	}
-	
-	private void checkNotNull(Object reference, String name) {
-		if (reference == null)
-		{
-			throw new NullPointerException(getString(R.string.error_config,	name));
-		}
-	}
-	
+
 	private String GetIMEI() {
 		TelephonyManager telephonyManager = (TelephonyManager) this
 				.getSystemService(Context.TELEPHONY_SERVICE);
@@ -221,6 +246,47 @@ public class MainActivity extends Activity
 		Log.v(TAG, "IMEI Acquired: " + IMEINumber);
 		return IMEINumber;
 
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		registerReceiver();
+	}
+
+	@Override
+	protected void onPause() {
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+		isReceiverRegistered = false;
+		super.onPause();
+	}
+
+	private void registerReceiver(){
+		if(!isReceiverRegistered) {
+			LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+					new IntentFilter(REGISTRATION_COMPLETE));
+			isReceiverRegistered = true;
+		}
+	}
+	/**
+	 * Check the device to make sure it has the Google Play Services APK. If
+	 * it doesn't, display a dialog that allows users to download the APK from
+	 * the Google Play Store or enable it in the device's system settings.
+	 */
+	private boolean checkPlayServices() {
+		GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+		int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+		if (resultCode != ConnectionResult.SUCCESS) {
+			if (apiAvailability.isUserResolvableError(resultCode)) {
+				apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+						.show();
+			} else {
+				Log.i(TAG, "This device is not supported.");
+				finish();
+			}
+			return false;
+		}
+		return true;
 	}
 	
 }
