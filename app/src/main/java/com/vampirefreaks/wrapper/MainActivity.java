@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -74,6 +75,14 @@ public class MainActivity extends Activity
 
 					Log.v(TAG, "Setting Globals.regId to: " + token);
 					Globals.regId  = token;
+
+					SharedPreferences pref = getApplicationContext().getSharedPreferences("VampireFreaks", MODE_PRIVATE);
+					SharedPreferences.Editor editor = pref.edit();
+
+					editor.putString("regId", token);  // Saving token
+
+					// Save the changes in SharedPreferences
+					editor.commit(); // commit changes
 
 					//if the intent is not with success then displaying error messages
 				} else if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)){

@@ -2,6 +2,7 @@ package com.vampirefreaks.wrapper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,14 +40,19 @@ public class web extends Activity
 		password1=getIntent().getExtras().getString("password");
 		//web.getSettings().setJavaScriptEnabled(true);
 		//web.getSettings().setPluginsEnabled(true);
-		
-		String url="http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+Globals.regId;
-		
+
+		SharedPreferences pref = getApplicationContext().getSharedPreferences("VampireFreaks", MODE_PRIVATE);
+
+        String registrationId = pref.getString("regId", "");
+
+//		String url="http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+Globals.regId;
+        String url="http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+registrationId;
 		Log.v(TAG, "Calling URL: " + url);
 		//	String postData = regId;
 		//	System.out.println(postData);
 		
-		web.postUrl(url, EncodingUtils.getBytes(Globals.regId, "base64"));
+//		web.postUrl(url, EncodingUtils.getBytes(Globals.regId, "base64"));
+        web.postUrl(url, EncodingUtils.getBytes(registrationId, "base64"));
 		web.setWebViewClient(new WebViewClient() {
 			public boolean shouldOverrideUrlLoading(WebView view, String url)
 			{

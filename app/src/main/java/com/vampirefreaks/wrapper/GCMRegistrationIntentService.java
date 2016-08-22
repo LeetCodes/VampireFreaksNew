@@ -5,6 +5,7 @@ package com.vampirefreaks.wrapper;
  */
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -51,6 +52,14 @@ public class GCMRegistrationIntentService extends IntentService {
             //Displaying the token in the log so that we can copy it to send push notification
             //You can also extend the app by storing the token in to your server
             Log.w("GCMRegIntentService", "token:" + token);
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("VampireFreaks", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+
+            editor.putString("regId", token);  // Saving token
+
+            // Save the changes in SharedPreferences
+            editor.commit(); // commit changes
 
             //on registration complete creating intent with success
             registrationComplete = new Intent(REGISTRATION_SUCCESS);
