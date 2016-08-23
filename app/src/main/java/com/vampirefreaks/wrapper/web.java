@@ -46,7 +46,7 @@ public class web extends Activity
         String registrationId = pref.getString("regId", "");
 
 //		String url="http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+Globals.regId;
-        String url="http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+registrationId;
+        String url="http://vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json&os=android&redirect_me=1&regID="+registrationId;
 		Log.v(TAG, "Calling URL: " + url);
 		//	String postData = regId;
 		//	System.out.println(postData);

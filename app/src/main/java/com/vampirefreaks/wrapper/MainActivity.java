@@ -117,10 +117,10 @@ public class MainActivity extends Activity
 		password = (EditText) findViewById(R.id.editText2);
 		login = (Button) findViewById(R.id.button1);
 		
-		if( GetIMEI().equals("A00000223B9F3C") ) {
-			email.setText("apocyber");
-			password.setText("hubertseales");
-		}
+//		if( GetIMEI().equals("A00000223B9F3C") ) {
+//			email.setText("apocyber");
+//			password.setText("hubertseales");
+//		}
 		
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -195,7 +195,7 @@ public class MainActivity extends Activity
 			{
 				HttpClient httpClient = new DefaultHttpClient();
 		        // Creating HTTP Post
-				HttpPost httpPost = new HttpPost("http://ws.vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json");
+				HttpPost httpPost = new HttpPost("http://vampirefreaks.com/loginAuth.php?authUser="+email1+"&authPass="+password1+"&outputFormat=json");
 		        try
 		        {
 		        	HttpResponse response = httpClient.execute(httpPost);
