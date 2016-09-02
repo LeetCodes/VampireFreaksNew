@@ -18,8 +18,15 @@ public class Splash extends Activity{
 				try
 				{
 					sleep(3000);
-					Intent i=new Intent(Splash.this,MainActivity.class);
-					startActivity(i);
+					if(PreferenceUtils.getLoginSession(getApplicationContext())) {
+						Intent i=new Intent(Splash.this,web.class);
+						startActivity(i);
+						finish();
+					} else {
+						Intent i=new Intent(Splash.this,MainActivity.class);
+						startActivity(i);
+						finish();
+					}
 				} 
 				catch (InterruptedException e) {
 					e.printStackTrace();

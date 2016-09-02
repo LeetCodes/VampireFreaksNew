@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -44,6 +45,8 @@ public class MainActivity extends Activity
 	EditText password;
 	Button login;
 	String email1,password1;
+	private CheckBox rememberCheckBox;
+
 	private boolean isReceiverRegistered;
 	private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	private static final String REGISTRATION_COMPLETE = "registrationComplete";
@@ -84,6 +87,11 @@ public class MainActivity extends Activity
 					// Save the changes in SharedPreferences
 					editor.commit(); // commit changes
 
+					/**
+					 *  Store ID in SharedPreference
+					 */
+					PreferenceUtils.setRegisterId(getApplicationContext(), token);
+
 					//if the intent is not with success then displaying error messages
 				} else if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)){
 					System.out.println("GCM registration error!");
@@ -116,7 +124,8 @@ public class MainActivity extends Activity
 		email = (EditText) findViewById(R.id.editText1);
 		password = (EditText) findViewById(R.id.editText2);
 		login = (Button) findViewById(R.id.button1);
-		
+		rememberCheckBox  = (CheckBox) findViewById(R.id.rememberCheckBox);
+
 //		if( GetIMEI().equals("A00000223B9F3C") ) {
 //			email.setText("apocyber");
 //			password.setText("hubertseales");
@@ -217,7 +226,13 @@ public class MainActivity extends Activity
 						//String t = "Logged in Successfully";
 						if(msg.equals("1")){		
 							//startActivity(new Intent(Login.this , Home.class));
-							Intent i=new Intent(MainActivity.this,web.class);
+                            if(rememberCheckBox.isChecked()) {
+                                PreferenceUtils.setLoginSession(getApplicationContext(), true);
+                            }
+                            PreferenceUtils.setEmail(getApplicationContext(), email1);
+                            PreferenceUtils.setPassword(getApplicationContext(), password1);
+
+                            Intent i=new Intent(MainActivity.this,web.class);
 							Bundle b=new Bundle();
 							b.putString("email", email1);
 	                        Bundle b1=new Bundle();

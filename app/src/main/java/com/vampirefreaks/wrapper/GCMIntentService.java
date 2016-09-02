@@ -43,7 +43,7 @@ public class GCMIntentService extends GcmListenerService {
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
 		Notification.Builder builder = new Notification.Builder(this);
-		builder.setAutoCancel(false);
+		builder.setAutoCancel(true);
 		builder.setContentTitle(title);
 		builder.setContentText(message);
 		builder.setSmallIcon(R.drawable.ic_launcher);

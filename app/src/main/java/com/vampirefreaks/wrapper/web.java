@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -36,8 +35,16 @@ public class web extends Activity
 		web=(WebView)findViewById(R.id.web);
 		//	web.setWebViewClient(new WebViewClient());
 		//	web.loadUrl("http://ws.vampirefreaks.com/loginAuth.php?authUser=jet420&authPass=test123&outputFormat=json&redirect_me=1");
-		email1=getIntent().getExtras().getString("email");
-		password1=getIntent().getExtras().getString("password");
+
+		/**
+		 *  Previous code to get email & password
+		 */
+
+		/*email1    = getIntent().getExtras().getString("email");
+		password1 = getIntent().getExtras().getString("password");*/
+
+		email1      = PreferenceUtils.getEmail(getApplicationContext());
+		password1   = PreferenceUtils.getPassword(getApplicationContext());
 		//web.getSettings().setJavaScriptEnabled(true);
 		//web.getSettings().setPluginsEnabled(true);
 
@@ -54,21 +61,31 @@ public class web extends Activity
 //		web.postUrl(url, EncodingUtils.getBytes(Globals.regId, "base64"));
         web.postUrl(url, EncodingUtils.getBytes(registrationId, "base64"));
 		web.setWebViewClient(new WebViewClient() {
-			public boolean shouldOverrideUrlLoading(WebView view, String url)
+			public boolean shouldOverrideUrlLoading(final WebView view,final String url)
 			{
-				view.getSettings().setJavaScriptEnabled(true);
-				view.getSettings().setPluginState(WebSettings.PluginState.ON);
-		    	view.loadUrl(url);
-		    	view.setWebChromeClient(new CustomWebChromeClient());
-				if( url.contains("logout=1") ) // Example of the logout URL: http://m.vampirefreaks.com/login.php?logout=1&c=6e0a3bc1
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						view.getSettings().setJavaScriptEnabled(true);
+						view.getSettings().setDomStorageEnabled(true);
+						//view.getSettings().setPluginsEnabled(true); // Not worked after api level 19
+						view.loadUrl(url);
+						view.setWebChromeClient(new CustomWebChromeClient());
+					}
+				});
+
+
+				if( url.contains("logout") ) // Example of the logout URL: http://m.vampirefreaks.com/login.php?logout=1&c=6e0a3bc1
 		        {
+					PreferenceUtils.clearAllPreference(getApplicationContext());
 					Intent i=new Intent(web.this,MainActivity.class);
 					startActivity(i);
+					finish();
 				}
 				if(url.equals("http://uploads.vampirefreaks.com/mobile/picupload.php"))
 				{
-					Intent i=new Intent(web.this,Home.class);
-					startActivity(i);
+					/*Intent i = new Intent(web.this,Home.class);
+					startActivity(i);*/
 				}      
 		        return false;
 		    }

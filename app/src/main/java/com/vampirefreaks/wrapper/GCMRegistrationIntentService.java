@@ -61,6 +61,11 @@ public class GCMRegistrationIntentService extends IntentService {
             // Save the changes in SharedPreferences
             editor.commit(); // commit changes
 
+            /**
+             *  Store ID in SharedPreference
+             */
+            PreferenceUtils.setRegisterId(getApplicationContext(), token);
+
             //on registration complete creating intent with success
             registrationComplete = new Intent(REGISTRATION_SUCCESS);
 
