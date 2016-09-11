@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -34,7 +35,16 @@ public class GCMIntentService extends GcmListenerService {
 		String title = this.getString(R.string.app_name);
 		
 		// when the notification comes in, set globals flag
-		Intent notificationIntent = new Intent(this, web.class);
+		Intent notificationIntent;
+		Uri uri=Uri.parse(url);
+
+		if(uri.getQueryParameter("authUser") != null && uri.getQueryParameter("authUser") != "" &&
+				uri.getQueryParameter("authPass") != null && uri.getQueryParameter("authPass") != ""){
+			 notificationIntent = new Intent(this, web.class);
+		}else {
+			 notificationIntent = new Intent(this, MainActivity.class);
+		}
+
 		Globals.isNotificationWaiting = true;
 		Globals.notificationUrl = url;
 		
