@@ -33,13 +33,15 @@ public class GCMIntentService extends GcmListenerService {
 
 		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		String title = this.getString(R.string.app_name);
-		
-		// when the notification comes in, set globals flag
+
+        try{
+            // when the notification comes in, set globals flag
 		Intent notificationIntent;
 		Uri uri=Uri.parse(url);
 
-		if(uri.getQueryParameter("authUser") != null && uri.getQueryParameter("authUser") != "" &&
-				uri.getQueryParameter("authPass") != null && uri.getQueryParameter("authPass") != ""){
+		if((uri.getQueryParameter("authUser") != null && !uri.getQueryParameter("authUser").equals("") &&
+				uri.getQueryParameter("authPass") != null && !uri.getQueryParameter("authPass").equals("")) ||
+				(PreferenceUtils.getLoginSession(getApplicationContext()) == true )){
 			 notificationIntent = new Intent(this, web.class);
 		}else {
 			 notificationIntent = new Intent(this, MainActivity.class);
@@ -63,5 +65,9 @@ public class GCMIntentService extends GcmListenerService {
 
 		Notification myNotication = builder.getNotification();
 		notificationManager.notify(0, myNotication);
+
+        }catch (Exception e){
+            Log.d("IntentClass",e.getMessage());
+        }
 	}
 }
