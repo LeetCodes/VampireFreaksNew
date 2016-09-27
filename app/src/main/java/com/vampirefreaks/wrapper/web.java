@@ -84,8 +84,8 @@ public class web extends Activity
 				}
 				if(url.equals("http://uploads.vampirefreaks.com/mobile/picupload.php"))
 				{
-					/*Intent i = new Intent(web.this,Home.class);
-					startActivity(i);*/
+					Intent i = new Intent(web.this,Home.class);
+					startActivity(i);
 				}      
 		        return false;
 		    }

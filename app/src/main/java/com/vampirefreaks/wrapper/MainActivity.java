@@ -178,8 +178,8 @@ public class MainActivity extends Activity
 		{
 			@Override
 			public void onClick(View v) {
-				email1 = email.getText().toString();
-				password1 = password.getText().toString();
+				email1 = email.getText().toString().trim();
+				password1 = password.getText().toString().trim();
 				if(email1.length() == 0)
 				{
 					Toast.makeText(getApplicationContext(), "Please enter username", Toast.LENGTH_SHORT).show();
